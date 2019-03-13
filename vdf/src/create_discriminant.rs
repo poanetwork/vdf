@@ -90,7 +90,7 @@ pub fn create_discriminant<T: BigNumExt>(seed: &[u8], length: u16) -> T {
     loop {
         // Speed up prime-finding by quickly ruling out numbers
         // that are known to be composite.
-        let mut sieve = vec![false; 1 << 16];
+        let mut sieve = ::bit_vec::BitVec::from_elem(1 << 16, false);
         for &(p, q) in SIEVE_INFO.iter() {
             // The reference implementation changes the sign of `n` before taking its
             // remainder. Instead, we leave `n` as positive, but use ceiling
@@ -98,12 +98,12 @@ pub fn create_discriminant<T: BigNumExt>(seed: &[u8], length: u16) -> T {
             // equivalent and potentially faster.
             let mut i: usize = (n.crem_u16(p) as usize * q as usize) % p as usize;
             while i < sieve.len() {
-                sieve[i] = true;
+                sieve.set(i, true);
                 i += p as usize;
             }
         }
 
-        for (i, &x) in sieve.iter().enumerate() {
+        for (i, x) in sieve.iter().enumerate() {
             let i = i as u32;
             if !x {
                 let q = u64::from(M) * u64::from(i);
