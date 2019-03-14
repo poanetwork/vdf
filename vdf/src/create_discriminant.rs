@@ -104,9 +104,8 @@ pub fn create_discriminant<T: BigNumExt>(seed: &[u8], length: u16) -> T {
         }
 
         for (i, x) in sieve.iter().enumerate() {
-            let i = i as u32;
             if !x {
-                let q = u64::from(M) * u64::from(i);
+                let q = u64::from(M) * u64::from(i as u32);
                 n = n + q;
                 if n.probab_prime(2) {
                     return -n;
