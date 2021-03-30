@@ -28,7 +28,7 @@ fn main() {
     use libc;
     use std::{ffi::CString, mem, os::unix::ffi::OsStringExt};
 
-    #[link = "gmp"]
+    #[link(name="gmp")]
     extern "C" {
         fn __gmpz_init_set_str(
             rop: mpz_ptr,
