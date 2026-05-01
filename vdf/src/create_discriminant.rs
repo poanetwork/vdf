@@ -28,9 +28,10 @@
 
 include!(concat!(env!("OUT_DIR"), "/constants.rs"));
 
+use bit_vec::BitVec;
 use classgroup::BigNumExt;
 use num_traits::Zero;
-use sha2::{digest::FixedOutput, Digest, Sha256};
+use sha2::{Digest, Sha256};
 use std::u16;
 
 fn random_bytes_from_seed(seed: &[u8], byte_count: usize) -> Vec<u8> {
@@ -39,10 +40,10 @@ fn random_bytes_from_seed(seed: &[u8], byte_count: usize) -> Vec<u8> {
     let mut extra: u16 = 0;
     while blob.len() < byte_count {
         let mut hasher = Sha256::new();
-        hasher.input(seed);
+        hasher.update(seed);
         let extra_bits: [u8; 2] = [((extra & 0xFF00) >> 8) as _, (extra & 0xFF) as _];
-        hasher.input(&extra_bits);
-        blob.extend_from_slice(&hasher.fixed_result()[..]);
+        hasher.update(&extra_bits);
+        blob.extend_from_slice(&hasher.finalize()[..]);
         extra += 1;
     }
     blob.resize(byte_count, 0);
@@ -95,7 +96,7 @@ pub fn create_discriminant<T: BigNumExt>(seed: &[u8], length: u16) -> T {
     loop {
         // Speed up prime-finding by quickly ruling out numbers
         // that are known to be composite.
-        let mut sieve = ::bit_vec::BitVec::from_elem(1 << 16, false);
+        let mut sieve = BitVec::from_elem(1 << 16, false);
         for &(p, q) in SIEVE_INFO.iter() {
             // The reference implementation changes the sign of `n` before taking its
             // remainder. Instead, we leave `n` as positive, but use ceiling

@@ -12,6 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 #![deny(unsafe_code)]
+// Legacy GMP FFI: duplicate `extern` prototypes vs `gmp::mpz`, extensive unsafe patterns.
+#![allow(clashing_extern_declarations)]
+#![allow(clippy::all)]
+#![allow(invalid_value)] // `mpz_t` stack slots: `uninitialized` then `__gmpz_init` (migrate to MaybeUninit)
+
 use num_traits::{One, Zero};
 use std::ops::{Mul, MulAssign, Rem, ShlAssign};
 
@@ -177,8 +182,8 @@ mod test {
         path::PathBuf,
     };
 
-    use super::{gmp_classgroup::GmpClassGroup, ClassGroup};
     use super::gmp::mpz::Mpz;
+    use super::{gmp_classgroup::GmpClassGroup, ClassGroup};
 
     fn split_into_three_pieces(line: &str, c: char) -> [&str; 3] {
         let mut iter = line.split(c);
@@ -247,5 +252,4 @@ mod test {
             buffer.clear();
         }
     }
-
 }

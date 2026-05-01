@@ -14,7 +14,7 @@
 
 use super::proof_of_time::{iterate_squarings, serialize};
 use classgroup::{gmp_classgroup::GmpClassGroup, BigNum, BigNumExt, ClassGroup};
-use sha2::{digest::FixedOutput, Digest, Sha256};
+use sha2::{Digest, Sha256};
 use std::{cmp::Eq, collections::HashMap, hash::Hash, mem, u64, usize};
 
 #[derive(Debug, Clone)]
@@ -89,21 +89,8 @@ pub fn approximate_parameters(t: f64) -> (usize, u8, u64) {
 }
 
 fn u64_to_bytes(q: u64) -> [u8; 8] {
-    if false {
-        // This use of `std::mem::transumte` is correct, but still not justified.
-        unsafe { std::mem::transmute(q.to_be()) }
-    } else {
-        [
-            (q >> 56) as u8,
-            (q >> 48) as u8,
-            (q >> 40) as u8,
-            (q >> 32) as u8,
-            (q >> 24) as u8,
-            (q >> 16) as u8,
-            (q >> 8) as u8,
-            q as u8,
-        ]
-    }
+    // Use modern idiomatic Rust for byte conversion
+    q.to_be_bytes()
 }
 
 /// Quote:
@@ -113,12 +100,12 @@ fn hash_prime<T: BigNum>(seed: &[&[u8]]) -> T {
     let mut j = 0u64;
     loop {
         let mut hasher = Sha256::new();
-        hasher.input(b"prime");
-        hasher.input(u64_to_bytes(j));
+        hasher.update(b"prime");
+        hasher.update(u64_to_bytes(j));
         for i in seed {
-            hasher.input(i);
+            hasher.update(i);
         }
-        let n = T::from(&hasher.fixed_result()[..16]);
+        let n = T::from(&hasher.finalize()[..16]);
         if n.probab_prime(2) {
             break n;
         }

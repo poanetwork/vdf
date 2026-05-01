@@ -13,29 +13,31 @@
 // limitations under the License.
 
 use classgroup::{
-    gmp::mpz::{mpz_ptr, Mpz, mpz_srcptr},
+    gmp::mpz::{mpz_ptr, mpz_srcptr, Mpz},
     gmp_classgroup::GmpClassGroup,
     ClassGroup,
 };
-use libc;
 use std::{env, process};
 
 fn main() {
     let fail = |q| {
-        eprintln!("{}", q);
+        eprintln!("{q}");
         process::exit(1)
     };
-    use libc;
     use std::{ffi::CString, mem, os::unix::ffi::OsStringExt};
 
-    #[link(name="gmp")]
+    #[link(name = "gmp")]
     extern "C" {
         fn __gmpz_init_set_str(
             rop: mpz_ptr,
             ptr: *const libc::c_char,
             base: libc::c_int,
         ) -> libc::c_int;
-        fn __gmpz_out_str(stream: *mut libc::FILE, base: libc::c_int, op: mpz_srcptr) -> libc::size_t;
+        fn __gmpz_out_str(
+            stream: *mut libc::FILE,
+            base: libc::c_int,
+            op: mpz_srcptr,
+        ) -> libc::size_t;
     }
 
     let mut args = env::args_os();

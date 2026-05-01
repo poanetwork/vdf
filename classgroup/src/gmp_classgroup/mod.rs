@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 #![deny(unsafe_code)]
-use super::ClassGroup;
 use super::gmp::mpz::Mpz;
 use super::gmp::mpz::ProbabPrimeResult::NotPrime;
+use super::ClassGroup;
 use num_traits::{One, Zero};
 use std::{
     borrow::Borrow,
@@ -373,7 +373,7 @@ impl<'a, B: Borrow<GmpClassGroup>> Mul<B> for &'a GmpClassGroup {
 
     #[inline(always)]
     fn mul(self, rhs: B) -> Self::Output {
-        let mut s = Clone::clone(self.borrow());
+        let mut s = Clone::clone(self);
         s *= rhs;
         s
     }
