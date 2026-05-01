@@ -11,7 +11,7 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-use std::{env, fs::File, io::Write, path::PathBuf, u16};
+use std::{env, fs::File, io::Write, path::PathBuf};
 
 /// The number of odd primes less than 65536.
 const PRIMES_LEN: usize = 6541;
@@ -35,8 +35,8 @@ fn odd_primes_below_65536() -> Vec<usize> {
     assert!(q * q > N);
     for i in (3..q).step_by(2) {
         if sieve[i >> 1] {
-            for i in ((i * i >> 1)..sieve.len()).step_by(i) {
-                sieve[i] = false;
+            for j in (((i * i) >> 1)..sieve.len()).step_by(i) {
+                sieve[j] = false;
             }
         }
     }
@@ -69,19 +69,21 @@ fn mod_exponentiation(base: usize, exponent: usize, modulus: usize) -> usize {
     }
 }
 
-macro_rules! const_fmt {
-    () => {
-        "#[allow(warnings)]\nconst {}: [{}; {}] = {:#?};\n\n";
-    };
-}
-
 /// A product of many small prime numbers.  We precompute the numbers between
 /// `1` and `M` that are coprime to `M`.  Any number whose residue modulo `M` is
 /// one of these is not divisible by any of the prime factors of `M`.  This
 /// speeds up the generation of random prime numbers.
 const M: usize = 8 * 3 * 5 * 7 * 11 * 13;
 fn emit<T: std::fmt::Debug>(f: &mut dyn Write, name: &str, t: &str, obj: &[T]) {
-    write!(f, const_fmt!(), name, t, obj.len(), obj).expect("i/o error in build script");
+    write!(
+        f,
+        "#[allow(warnings)]\nconst {}: [{}; {}] = {:#?};\n\n",
+        name,
+        t,
+        obj.len(),
+        obj
+    )
+    .expect("i/o error in build script");
 }
 
 /// Write the generated code to `f`.

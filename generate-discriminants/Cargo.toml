@@ -1,0 +1,12 @@
+[package]
+name = "generate-discriminants"
+version = "0.1.0"
+description = "Utility to emit precomputed discriminants for tooling"
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[dependencies]
+vdf = { path = "../vdf" }
+classgroup = { path = "../classgroup" }

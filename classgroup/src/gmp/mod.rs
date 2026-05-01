@@ -1,4 +1,4 @@
-#![warn(deprecated)]
+#![allow(deprecated)]
 #![allow(non_camel_case_types)]
 
 extern crate libc;

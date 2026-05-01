@@ -136,7 +136,7 @@ where
     for<'a, 'b> &'a T: std::ops::Mul<&'b T, Output = T>,
     for<'a, 'b> &'a T::BigNum: std::ops::Mul<&'b T::BigNum, Output = T::BigNum>,
 {
-    use sha2::{digest::FixedOutput, Digest, Sha256};
+    use sha2::{Digest, Sha256};
 
     let size = (int_size_bits + 16) >> 4;
     let mut v = Vec::with_capacity(size * 2);
@@ -146,9 +146,9 @@ where
     let mut hasher = Sha256::new();
     for i in &[&x, &y, &sqrt_mu] {
         i.serialize(&mut v).expect(super::INCORRECT_BUFFER_SIZE);
-        hasher.input(&v);
+        hasher.update(&v);
     }
-    let res = hasher.fixed_result();
+    let res = hasher.finalize();
     T::unsigned_deserialize_bignum(&res[..16])
 }
 

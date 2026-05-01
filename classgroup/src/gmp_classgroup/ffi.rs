@@ -22,7 +22,8 @@ pub use super::super::gmp::mpz::Mpz;
 use super::super::gmp::mpz::{mp_bitcnt_t, mp_limb_t};
 use libc::{c_int, c_long, c_ulong, c_void, size_t};
 // pub use c_ulong;
-use std::{mem, usize};
+use std::mem::MaybeUninit;
+use std::usize;
 // We use the unsafe versions to avoid unecessary allocations.
 #[link(name = "gmp")]
 extern "C" {
@@ -207,9 +208,9 @@ pub fn mpz_fdiv_q(q: &mut Mpz, n: &Mpz, d: &Mpz) {
 
 /// Sets `rop` to `(-1) * op`
 #[inline]
-#[cfg(none)]
+#[cfg(any())]
 pub fn mpz_neg(rop: &mut Mpz) {
-    assert!(mem::size_of::<Mpz>() == mem::size_of::<MpzStruct>());
+    assert!(std::mem::size_of::<Mpz>() == std::mem::size_of::<MpzStruct>());
     unsafe {
         let ptr = rop as *mut _ as *mut MpzStruct;
         let v = (*ptr).mp_size;
@@ -237,9 +238,10 @@ pub fn export_obj(obj: &Mpz, v: &mut [u8]) -> Result<(), usize> {
         *(ptr as *mut u8) = 0;
 
         // SAFE as __gmpz_export will *always* initialize this.
-        let mut s: usize = mem::uninitialized();
-        let ptr2 = __gmpz_export(ptr, &mut s, 1, 1, 1, 0, obj);
+        let mut s = MaybeUninit::<usize>::uninit();
+        let ptr2 = __gmpz_export(ptr, s.as_mut_ptr(), 1, 1, 1, 0, obj);
         assert_eq!(ptr, ptr2);
+        let s = unsafe { s.assume_init() };
         if 0 == s {
             1
         } else {

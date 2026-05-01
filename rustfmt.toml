@@ -9,7 +9,7 @@
 # condense_wildcard_suffixes = false
 # control_brace_style = "AlwaysSameLine"
 # disable_all_formatting = false
-# edition = "2018"
+# edition = "2021"
 # emit_mode = "Files"
 # empty_item_single_line = true
 # enum_discrim_align_threshold = 0
@@ -52,6 +52,7 @@
 # wrap_comments = true
 
 ## Stable features
+edition = "2021"
 force_explicit_abi = true
 hard_tabs = false
 max_width = 100

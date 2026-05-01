@@ -1,0 +1,30 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install GMP
+        run: sudo apt-get update && sudo apt-get install -y libgmp-dev
+
+      - run: rustc --version && cargo --version
+
+      - name: cargo fmt --check
+        run: cargo fmt --all -- --check
+
+      - name: cargo clippy --workspace --all-targets
+        run: cargo clippy --workspace --all-targets --verbose -- -D warnings
+
+      - name: cargo test --workspace
+        run: cargo test --workspace --verbose
