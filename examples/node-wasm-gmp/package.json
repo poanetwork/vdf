@@ -1,0 +1,16 @@
+{
+  "name": "vdf-wasm-gmp",
+  "version": "0.1.0",
+  "type": "commonjs",
+  "main": "index.js",
+  "files": [
+    "index.js",
+    "pkg/"
+  ],
+  "scripts": {
+    "prepack": "npm run build:gmp",
+    "build:gmp": "make -C ../.. node-gmp-bindings",
+    "test": "npm run build:gmp && node test.js",
+    "bench": "npm run build:gmp && node bench.js"
+  }
+}
