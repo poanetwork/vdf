@@ -1,0 +1,10 @@
+{
+  "name": "vdf-node-wasm-gmp-smoke",
+  "private": true,
+  "type": "commonjs",
+  "scripts": {
+    "build:gmp": "make -C ../.. node-gmp-bindings",
+    "test": "npm run build:gmp && node test.js",
+    "bench": "npm run build:gmp && node bench.js"
+  }
+}

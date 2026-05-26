@@ -19,7 +19,7 @@
 //! this library requires.
 #![allow(unsafe_code)]
 pub use super::super::gmp::mpz::Mpz;
-use super::super::gmp::mpz::{mp_bitcnt_t, mp_limb_t};
+use super::super::gmp::mpz::{mp_bitcnt_t, mp_limb_t, mpz_srcptr};
 use libc::{c_int, c_long, c_ulong, c_void, size_t};
 // pub use c_ulong;
 use std::{mem, usize};
@@ -45,7 +45,7 @@ extern "C" {
         op: *const c_void,
     );
     fn __gmpz_tdiv_r(r: *mut Mpz, n: *const Mpz, d: *const Mpz);
-    fn __gmpz_sizeinbase(op: &Mpz, base: c_int) -> size_t;
+    fn __gmpz_sizeinbase(op: mpz_srcptr, base: c_int) -> size_t;
     fn __gmpz_fdiv_q_ui(rop: *mut Mpz, op1: *const Mpz, op2: c_ulong) -> c_ulong;
     fn __gmpz_add(rop: *mut Mpz, op1: *const Mpz, op2: *const Mpz);
     fn __gmpz_add_ui(rop: *mut Mpz, op1: *const Mpz, op2: c_ulong);
@@ -61,7 +61,7 @@ extern "C" {
         size: size_t,
         endian: c_int,
         nails: size_t,
-        op: &Mpz,
+        op: mpz_srcptr,
     ) -> *mut c_void;
     fn __gmpz_powm(rop: *mut Mpz, base: *const Mpz, exp: *const Mpz, modulus: *const Mpz);
 }
@@ -172,7 +172,7 @@ pub fn three_gcd(rop: &mut Mpz, a: &Mpz, b: &Mpz, c: &Mpz) {
 
 #[inline]
 pub fn size_in_bits(obj: &Mpz) -> usize {
-    unsafe { __gmpz_sizeinbase(obj, 2) }
+    unsafe { __gmpz_sizeinbase(obj.inner(), 2) }
 }
 
 #[inline]
@@ -207,7 +207,7 @@ pub fn mpz_fdiv_q(q: &mut Mpz, n: &Mpz, d: &Mpz) {
 
 /// Sets `rop` to `(-1) * op`
 #[inline]
-#[cfg(none)]
+#[cfg(any())]
 pub fn mpz_neg(rop: &mut Mpz) {
     assert!(mem::size_of::<Mpz>() == mem::size_of::<MpzStruct>());
     unsafe {
@@ -236,10 +236,11 @@ pub fn export_obj(obj: &Mpz, v: &mut [u8]) -> Result<(), usize> {
         // Necessary ― this byte may not be fully overwritten
         *(ptr as *mut u8) = 0;
 
-        // SAFE as __gmpz_export will *always* initialize this.
-        let mut s: usize = mem::uninitialized();
-        let ptr2 = __gmpz_export(ptr, &mut s, 1, 1, 1, 0, obj);
+        // SAFE as __gmpz_export will always initialize this.
+        let mut s = mem::MaybeUninit::<usize>::uninit();
+        let ptr2 = __gmpz_export(ptr, s.as_mut_ptr(), 1, 1, 1, 0, obj.inner());
         assert_eq!(ptr, ptr2);
+        let s = s.assume_init();
         if 0 == s {
             1
         } else {

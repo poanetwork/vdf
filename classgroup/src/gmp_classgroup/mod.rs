@@ -376,7 +376,7 @@ impl<'a, B: Borrow<GmpClassGroup>> Mul<B> for &'a GmpClassGroup {
 
     #[inline(always)]
     fn mul(self, rhs: B) -> Self::Output {
-        let mut s = Clone::clone(self.borrow());
+        let mut s = self.clone();
         s *= rhs;
         s
     }

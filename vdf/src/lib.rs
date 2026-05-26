@@ -80,9 +80,10 @@ use classgroup;
 mod create_discriminant;
 use std::fmt::Debug;
 
+#[cfg(not(target_arch = "wasm32"))]
+pub use self::proof_pietrzak::{PietrzakVDF, PietrzakVDFParams};
 pub use self::{
     create_discriminant::create_discriminant,
-    proof_pietrzak::{PietrzakVDF, PietrzakVDFParams},
     proof_wesolowski::{WesolowskiVDF, WesolowskiVDFParams},
 };
 
@@ -92,6 +93,7 @@ const INCORRECT_BUFFER_SIZE: &str =
     "internal error: incorrect buffer size calculation (this is a bug)";
 
 mod proof_of_time;
+#[cfg(not(target_arch = "wasm32"))]
 mod proof_pietrzak;
 mod proof_wesolowski;
 

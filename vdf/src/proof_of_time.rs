@@ -29,6 +29,7 @@ pub fn serialize<V: ClassGroup>(proof: &[V], y: &V, int_size_bits: usize) -> Vec
     }
     v
 }
+#[cfg(not(target_arch = "wasm32"))]
 pub fn deserialize_proof<T>(
     proof_blob: &[u8],
     discriminant: &T::BigNum,
